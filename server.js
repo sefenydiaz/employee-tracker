@@ -29,8 +29,17 @@ async function mainQuestion() {
         case 'View all departments':
             viewDepartments()
             break;
-            case 'Create a department':
+        case 'View all roles':
+            viewRoles()
+            break;
+        case 'Create an employee':
+            createEmployee()
+            break;
+        case 'Create a department':
             createDepartment()
+            break;
+         case 'Create a role':
+            createRole()
             break;
         default:
             console.log('Good-bye!');
@@ -42,6 +51,18 @@ async function mainQuestion() {
 async function viewDepartments() {
     const [departments] = await db.promise().query("SELECT * FROM departments")
     console.table(departments);
+    setTimeout(mainQuestion, 3000)
+}
+
+async function viewEmployees() {
+    const [employees] = await db.promise().query("SELECT * FROM employees")
+    console.table(employees);
+    setTimeout(mainQuestion, 3000)
+}
+
+async function viewRoles() {
+    const [roles] = await db.promise().query("SELECT * FROM roles")
+    console.table(roles);
     setTimeout(mainQuestion, 3000)
 }
 
