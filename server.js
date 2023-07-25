@@ -19,6 +19,8 @@ async function mainQuestion() {
             'Create an employee',
             'Create a department',
             'Create a role',
+            'Update employee role',
+            'View total budget',
         ]
     })
     //add switch cases to all choices
@@ -40,6 +42,12 @@ async function mainQuestion() {
             break;
          case 'Create a role':
             createRole()
+            break;
+        case 'Update employee role':
+            updateEmployeeRole()
+            break;
+            case 'View total budget':
+            viewBudget()
             break;
         default:
             console.log('Good-bye!');
@@ -64,6 +72,11 @@ async function viewRoles() {
     const [roles] = await db.promise().query("SELECT * FROM roles")
     console.table(roles);
     setTimeout(mainQuestion, 3000)
+}
+
+// need to finish budget function
+async function viewBudget() {
+
 }
 
 // create functions
