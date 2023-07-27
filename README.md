@@ -20,6 +20,9 @@
   ## Usage 
   Here is a demo video outlining how to use this generator:
 
+  https://www.loom.com/share/062939b81cf3441582adad1341b65487
+  
+
   ## License 
   none
 
