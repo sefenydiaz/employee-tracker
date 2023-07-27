@@ -20,7 +20,6 @@ async function mainQuestion() {
             'Create a department',
             'Create a role',
             'Update employee role',
-            'View total budget',
         ]
     })
     //add switch cases to all choices
@@ -46,9 +45,6 @@ async function mainQuestion() {
         case 'Update employee role':
             updateEmployeeRole()
             break;
-            case 'View total budget':
-            viewBudget()
-            break;
         default:
             console.log('Good-bye!');
             process.exit(0);
@@ -63,21 +59,17 @@ async function viewDepartments() {
 }
 
 async function viewEmployees() {
-    const [employees] = await db.promise().query("SELECT * FROM employees")
+    const [employees] = await db.promise().query("SELECT employees.id, employees.first_name, employees.last_name, roles.title, departments.name AS department, roles.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employees LEFT JOIN roles on employees.role_id = roles.id LEFT JOIN departments on roles.department_id = departments.id LEFT JOIN employees manager on manager.id = employees.manager_id")
     console.table(employees);
     setTimeout(mainQuestion, 3000)
 }
 
 async function viewRoles() {
-    const [roles] = await db.promise().query("SELECT * FROM roles")
+    const [roles] = await db.promise().query("SELECT roles.id, roles.title, departments.name AS department, roles.salary FROM roles LEFT JOIN departments on roles.department_id = departments.id")
     console.table(roles);
     setTimeout(mainQuestion, 3000)
 }
 
-// need to finish budget function
-async function viewBudget() {
-
-}
 
 // create functions
 async function createDepartment() {
@@ -94,10 +86,94 @@ async function createDepartment() {
     setTimeout(mainQuestion, 3000);
 }
 
+async function createRole() {
+    const [departments] = await db.promise().query("SELECT * FROM departments")
+    const depChoices = departments.map(dep=>({name: dep.name, value: dep.id}))
+    const role = await inquirer.prompt([
+        {
+            name: "title",
+            message: "What is the title of this role?",
+            type: "input",
+        },
+        {
+            name: "salary",
+            message: "What is the salary for this role?",
+            type: "number",
+        },
+        {
+            name: "department_id",
+            message: "What department does this role belong to?",
+            type: "list",
+            choices: depChoices
+        }
+    ])
+    await db.promise().query("INSERT INTO roles SET ?", role);
+    console.log('New role created!');
+    setTimeout(mainQuestion, 3000);
+    console.log(role)
+}
+
+//create employee
+async function createEmployee() {
+    const [roles] = await db.promise().query("SELECT * FROM roles")
+    const roleChoices = roles.map(role=>({name: role.title, value: role.id}))
+
+    const employee = await inquirer.prompt([
+        {
+            name: "first_name",
+            message: "What is the employee's first name?",
+            type: "input"
+        },
+        {
+            name: "last_name",
+            message: "What is the employee's last name?",
+            type: "input"
+        },
+        {
+            name: "role_id",
+            message: "What is the role of the employee?",
+            type: "list",
+            choices: roleChoices
+        },
+    ])
+    await db.promise().query("INSERT INTO employees SET ?", employee);
+    console.log('New employee created!');
+    setTimeout(mainQuestion, 3000);
+    console.log(employee)
+}
+
+
+async function updateEmployeeRole() {
+    const [employees] = await db.promise().query("SELECT * FROM employees")
+    const empChoices = employees.map(emp=>({name: emp.first_name + " " + emp.last_name, value: emp.id}))
+
+    const [roles] = await db.promise().query("SELECT * FROM roles")
+    const roleChoices = roles.map(role=>({name: role.title, value: role.id}))
+
+
+    const {employeeId, roleId} = await inquirer.prompt([
+        {
+            name: "employeeId",
+            message: "What is the name of the employee you would like to update?",
+            type: "list",
+            choices: empChoices
+        },
+        {
+            name: "roleId",
+            message: "What is the new role of the employee?",
+            type: "list",
+            choices: roleChoices
+        },
+    ])
+    await db.promise().query("UPDATE employees SET role_id = ? WHERE id = ?", [roleId, employeeId]);
+    console.log('Employee updated!');
+    setTimeout(viewEmployees, 1000);
+}
 
 init();
 
-
+// name: role.title, value: role.id
+// const empChoices = employees.map(emp=>({name: emp.first_name + " " + emp.last_name, value: emp.id}))
 
 // outlined example code
 // const [departments] = await db.promise().query("SELECT * FROM departments")
